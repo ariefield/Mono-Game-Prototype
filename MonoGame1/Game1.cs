@@ -11,6 +11,8 @@ namespace MonoGame1
     {
         GraphicsDeviceManager graphics;
         SpriteBatch spriteBatch;
+
+        Texture2D _texture;
         
         public Game1()
         {
@@ -41,6 +43,7 @@ namespace MonoGame1
             spriteBatch = new SpriteBatch(GraphicsDevice);
 
             // TODO: use this.Content to load your game content here
+            _texture = Content.Load<Texture2D>("Player/DownWalk");
         }
 
         /// <summary>
@@ -76,6 +79,12 @@ namespace MonoGame1
             GraphicsDevice.Clear(Color.CornflowerBlue);
 
             // TODO: Add your drawing code here
+            spriteBatch.Begin();
+
+            spriteBatch.Draw(_texture, new Vector2(0, 0), Color.White);
+
+            spriteBatch.End();
+
 
             base.Draw(gameTime);
         }
