@@ -42,7 +42,7 @@ namespace MonoGame1.Sprites
 
         private float _elapsedTime = 0f;
 
-        private int counter = 0;
+        private bool _moving = false;
 
 
         public Sprite( Dictionary<string, Texture2D> textureDict, Vector2 pos )
@@ -99,25 +99,70 @@ namespace MonoGame1.Sprites
 
             if (Keyboard.GetState().IsKeyDown(Keys.Up))
             {
-                //Set texture and source rect and frame
+                // When switching from another direction
+                if (_currentAnimation != "UpWalk")
+                {
+                    _frame = 2;
+                }
 
+                Texture = TextureDict["UpWalk"];
+                _currentAnimation = "UpWalk";
+                _moving = true;
             }
-
             else if (Keyboard.GetState().IsKeyDown(Keys.Down))
             {
                 // When switching from another direction
                 if (_currentAnimation != "DownWalk")
                 {
-                    _currentAnimation = "DownWalk";
                     _frame = 2;
                 }
 
-                // Set source rect based on current frame
-                SourceRect = new Rectangle((Texture.Width / _numFrames) * (_frame - 1), 
-                                           0, 
-                                           Texture.Width / _numFrames,
-                                           Texture.Height);
+                Texture = TextureDict["DownWalk"];
+                _currentAnimation = "DownWalk";
+                _moving = true;
+            }
+            else if (Keyboard.GetState().IsKeyDown(Keys.Left))
+            {
+                // When switching from another direction
+                if (_currentAnimation != "LeftWalk")
+                {
+                    _frame = 2;
+                }
 
+                Texture = TextureDict["LeftWalk"];
+                _currentAnimation = "LeftWalk";
+                _moving = true;
+            }
+            else if (Keyboard.GetState().IsKeyDown(Keys.Right))
+            {
+                // When switching from another direction
+                if (_currentAnimation != "RightWalk")
+                {
+                    _frame = 2;
+                }
+
+                Texture = TextureDict["RightWalk"];
+                _currentAnimation = "RightWalk";
+                _moving = true;
+            }
+            else
+            {
+                _moving = false;
+                if (_elapsedTime >= milliSecPerFrame * _frame)
+                {
+                    _frame = 1;
+                    _elapsedTime = 0;
+                }
+            }
+
+            // Set source rect based on current frame
+            SourceRect = new Rectangle( (Texture.Width / _numFrames) * (_frame - 1),
+                                        0,
+                                        Texture.Width / _numFrames,
+                                        Texture.Height );
+
+            if (_moving)
+            {
                 if (_frame < _numFrames && _elapsedTime >= milliSecPerFrame * _frame)
                 {
                     _frame += 1;
@@ -127,27 +172,6 @@ namespace MonoGame1.Sprites
                     _frame = 1;
                     _elapsedTime = 0;
                 }
-            }
-            else if (Keyboard.GetState().IsKeyDown(Keys.Left))
-            {
-                velocity.X = -MoveSpeed;
-            }
-            else if (Keyboard.GetState().IsKeyDown(Keys.Right))
-            {
-                velocity.X = MoveSpeed;
-            }
-            else
-            {
-                if (_elapsedTime >= milliSecPerFrame * _frame)
-                {
-                    _frame = 1;
-                    _elapsedTime = 0;
-                }
-                // Set source rect based on current frame
-                SourceRect = new Rectangle((Texture.Width / _numFrames) * (_frame - 1),
-                                           0,
-                                           Texture.Width / _numFrames,
-                                           Texture.Height);
             }
         }
 

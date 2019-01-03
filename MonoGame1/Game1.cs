@@ -51,6 +51,9 @@ namespace MonoGame1
 
             Dictionary<string, Texture2D> textureSets = new Dictionary<string, Texture2D>();
             textureSets["DownWalk"] = Content.Load<Texture2D>("Player/DownWalk");
+            textureSets["UpWalk"] = Content.Load<Texture2D>("Player/UpWalk");
+            textureSets["LeftWalk"] = Content.Load<Texture2D>("Player/LeftWalk");
+            textureSets["RightWalk"] = Content.Load<Texture2D>("Player/RightWalk");
 
 
             // TODO: Create sprite object/animation dictionary
