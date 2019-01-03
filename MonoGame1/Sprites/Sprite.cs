@@ -10,13 +10,15 @@ using Microsoft.Xna.Framework.Input;
 
 namespace MonoGame1.Sprites
 {
-    //public enum TextureKeys
-    //{
-    //    UpWalk = 0,
-    //    DownWalk = 1,
-    //    LeftWalk = 2,
-    //    RightWalk = 3
-    //}
+    public enum Animation
+    {
+        UpWalk = 0,
+        DownWalk = 1,
+        LeftWalk = 2,
+        RightWalk = 3
+    }
+
+    
 
     class Sprite
     {
@@ -24,41 +26,57 @@ namespace MonoGame1.Sprites
 
         public Texture2D Texture { get; set; }
 
+        public Vector2 position;
+
         public Rectangle SourceRect { get; set; }
 
         public float MoveSpeed { get; set; }
 
-        public Dictionary<string, Texture2D> TextureDict { get; set; }
+        public int FrameWidth { get { return Texture.Width / 6; } }
 
-        public Vector2 position;
+        public int FrameHeight { get { return Texture.Height / 10; } }
 
         public Vector2 velocity;
 
-        private string _currentAnimation = "DownWalk";
+        public Vector2 animationPosition;
+
+        public Dictionary<Animation, Vector2> AnimationPositions { get; set; }
+
+        private const int _numFrames = 3;
+
+        private Animation _currentAnimation = Animation.DownWalk;
 
         private int _frame = 0;
-
-        private int _numFrames = 3;
 
         private float _elapsedTime = 0f;
 
         private bool _moving = false;
 
 
-        public Sprite( Dictionary<string, Texture2D> textureDict, Vector2 pos )
+        public Sprite( Texture2D texture, Vector2 pos )
         {
             // Input variables
-            TextureDict = textureDict;
-            Texture = TextureDict["DownWalk"];
+            Texture = texture;
             position = pos;
 
             // Public defaults
-            SourceRect = new Rectangle((Texture.Width / _numFrames) * _frame,
+            SourceRect = new Rectangle(0,
                                        0,
-                                       Texture.Width / _numFrames,
-                                       Texture.Height);
-            velocity = Vector2.Zero;
+                                       FrameWidth,
+                                       FrameHeight);
+
             MoveSpeed = 3f;
+            velocity = Vector2.Zero;
+            animationPosition = Vector2.Zero;
+
+            // Initialize animation positions dict
+            AnimationPositions = new Dictionary<Animation, Vector2>
+            {
+                [Animation.UpWalk] = new Vector2(FrameWidth * 0, FrameHeight * 1),
+                [Animation.DownWalk] = new Vector2(FrameWidth * 0, FrameHeight * 0),
+                [Animation.LeftWalk] = new Vector2(FrameWidth * 0, FrameHeight * 3),
+                [Animation.RightWalk] = new Vector2(FrameWidth * 0, FrameHeight * 2)
+            };
 
         }
 
@@ -100,49 +118,45 @@ namespace MonoGame1.Sprites
             if (Keyboard.GetState().IsKeyDown(Keys.Up))
             {
                 // When switching from another direction
-                if (_currentAnimation != "UpWalk")
+                if (_currentAnimation != Animation.UpWalk)
                 {
                     _frame = 2;
                 }
 
-                Texture = TextureDict["UpWalk"];
-                _currentAnimation = "UpWalk";
+                _currentAnimation = Animation.UpWalk;
                 _moving = true;
             }
             else if (Keyboard.GetState().IsKeyDown(Keys.Down))
             {
                 // When switching from another direction
-                if (_currentAnimation != "DownWalk")
+                if (_currentAnimation != Animation.DownWalk)
                 {
                     _frame = 2;
                 }
 
-                Texture = TextureDict["DownWalk"];
-                _currentAnimation = "DownWalk";
+                _currentAnimation = Animation.DownWalk;
                 _moving = true;
             }
             else if (Keyboard.GetState().IsKeyDown(Keys.Left))
             {
                 // When switching from another direction
-                if (_currentAnimation != "LeftWalk")
+                if (_currentAnimation != Animation.LeftWalk)
                 {
                     _frame = 2;
                 }
 
-                Texture = TextureDict["LeftWalk"];
-                _currentAnimation = "LeftWalk";
+                _currentAnimation = Animation.LeftWalk;
                 _moving = true;
             }
             else if (Keyboard.GetState().IsKeyDown(Keys.Right))
             {
                 // When switching from another direction
-                if (_currentAnimation != "RightWalk")
+                if (_currentAnimation != Animation.RightWalk)
                 {
                     _frame = 2;
                 }
 
-                Texture = TextureDict["RightWalk"];
-                _currentAnimation = "RightWalk";
+                _currentAnimation = Animation.RightWalk;
                 _moving = true;
             }
             else
@@ -155,11 +169,14 @@ namespace MonoGame1.Sprites
                 }
             }
 
+            // Set animation starting positions
+            animationPosition = AnimationPositions[_currentAnimation];
+
             // Set source rect based on current frame
-            SourceRect = new Rectangle( (Texture.Width / _numFrames) * (_frame - 1),
-                                        0,
-                                        Texture.Width / _numFrames,
-                                        Texture.Height );
+            SourceRect = new Rectangle( (int)animationPosition.X + FrameWidth * (_frame - 1),
+                                        (int)animationPosition.Y,
+                                        FrameWidth,
+                                        FrameHeight );
 
             if (_moving)
             {

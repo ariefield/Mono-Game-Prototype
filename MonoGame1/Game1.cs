@@ -49,15 +49,17 @@ namespace MonoGame1
             // Create a new SpriteBatch, which can be used to draw textures.
             spriteBatch = new SpriteBatch(GraphicsDevice);
 
-            Dictionary<string, Texture2D> textureSets = new Dictionary<string, Texture2D>();
-            textureSets["DownWalk"] = Content.Load<Texture2D>("Player/DownWalk");
-            textureSets["UpWalk"] = Content.Load<Texture2D>("Player/UpWalk");
-            textureSets["LeftWalk"] = Content.Load<Texture2D>("Player/LeftWalk");
-            textureSets["RightWalk"] = Content.Load<Texture2D>("Player/RightWalk");
+            //Dictionary<string, Texture2D> textureSets = new Dictionary<string, Texture2D>();
+            //textureSets["DownWalk"] = Content.Load<Texture2D>("Player/DownWalk");
+            //textureSets["UpWalk"] = Content.Load<Texture2D>("Player/UpWalk");
+            //textureSets["LeftWalk"] = Content.Load<Texture2D>("Player/LeftWalk");
+            //textureSets["RightWalk"] = Content.Load<Texture2D>("Player/RightWalk");
+
+
 
 
             // TODO: Create sprite object/animation dictionary
-            sprites.Add( new Sprite( textureSets, new Vector2(0, 0)) );
+            sprites.Add( new Sprite( Content.Load<Texture2D>("Player/PlayerAll"), new Vector2(0, 0)) );
         }
 
         /// <summary>
