@@ -1,6 +1,11 @@
-﻿using Microsoft.Xna.Framework;
+﻿using System;
+using System.Collections.Generic;
+using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
+
+using MonoGame1.Sprites;
+
 
 namespace MonoGame1
 {
@@ -12,12 +17,14 @@ namespace MonoGame1
         GraphicsDeviceManager graphics;
         SpriteBatch spriteBatch;
 
-        Texture2D _texture;
+        List<Sprite> sprites;
         
         public Game1()
         {
             graphics = new GraphicsDeviceManager(this);
             Content.RootDirectory = "Content";
+
+            sprites = new List<Sprite>();
         }
 
         /// <summary>
@@ -42,8 +49,12 @@ namespace MonoGame1
             // Create a new SpriteBatch, which can be used to draw textures.
             spriteBatch = new SpriteBatch(GraphicsDevice);
 
-            // TODO: use this.Content to load your game content here
-            _texture = Content.Load<Texture2D>("Player/DownWalk");
+            Dictionary<string, Texture2D> textureSets = new Dictionary<string, Texture2D>();
+            textureSets["DownWalk"] = Content.Load<Texture2D>("Player/DownWalk");
+
+
+            // TODO: Create sprite object/animation dictionary
+            sprites.Add( new Sprite( textureSets, new Vector2(0, 0)) );
         }
 
         /// <summary>
@@ -62,10 +73,16 @@ namespace MonoGame1
         /// <param name="gameTime">Provides a snapshot of timing values.</param>
         protected override void Update(GameTime gameTime)
         {
-            if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed || Keyboard.GetState().IsKeyDown(Keys.Escape))
+            if ( GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed || Keyboard.GetState().IsKeyDown(Keys.Escape) )
                 Exit();
 
-            // TODO: Add your update logic here
+            foreach (Sprite sprite in sprites)
+            {
+                sprite.Update( gameTime );
+            }
+
+            //Console.WriteLine("Elapsed Time:" + gameTime.ElapsedGameTime.Milliseconds);
+            //Console.WriteLine("Total Time:" + gameTime.TotalGameTime);
 
             base.Update(gameTime);
         }
@@ -80,11 +97,12 @@ namespace MonoGame1
 
             // TODO: Add your drawing code here
             spriteBatch.Begin();
-
-            spriteBatch.Draw(_texture, new Vector2(0, 0), Color.White);
+            foreach (Sprite sprite in sprites)
+            {
+                spriteBatch.Draw(sprite.Texture, sprite.position, sprite.SourceRect, Color.White);
+            }
 
             spriteBatch.End();
-
 
             base.Draw(gameTime);
         }
