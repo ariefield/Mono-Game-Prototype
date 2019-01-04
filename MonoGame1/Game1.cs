@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
-
+using MonoGame1.Models;
 using MonoGame1.Sprites;
 
 
@@ -14,9 +14,20 @@ namespace MonoGame1
     /// </summary>
     public class Game1 : Game
     {
+        // Player spritesheet specific variables
+        const string PLAYER_SPRITESHEET_PATH = "Player/PlayerAll";
+        const int PLAYER_ANIMATION_FRAMES = 3;
+        const int PLAYER_SPRITESHEET_COLUMNS = 6;
+        const int PLAYER_SPRITESHEET_ROWS = 10;
+        const int PLAYER_UPWALK_ROW = 1;
+        const int PLAYER_DOWNWALK_ROW = 0;
+        const int PLAYER_LEFTWALK_ROW = 3;
+        const int PLAYER_RIGHTWALK_ROW = 2;
+        const int PLAYER_ALLWALK_COLUMN = 0;
+        
+        // Monogame variables
         GraphicsDeviceManager graphics;
         SpriteBatch spriteBatch;
-
         List<Sprite> sprites;
         
         public Game1()
@@ -49,17 +60,45 @@ namespace MonoGame1
             // Create a new SpriteBatch, which can be used to draw textures.
             spriteBatch = new SpriteBatch(GraphicsDevice);
 
-            //Dictionary<string, Texture2D> textureSets = new Dictionary<string, Texture2D>();
-            //textureSets["DownWalk"] = Content.Load<Texture2D>("Player/DownWalk");
-            //textureSets["UpWalk"] = Content.Load<Texture2D>("Player/UpWalk");
-            //textureSets["LeftWalk"] = Content.Load<Texture2D>("Player/LeftWalk");
-            //textureSets["RightWalk"] = Content.Load<Texture2D>("Player/RightWalk");
+            var playerSprite = new Sprite( GeneratePlayerAnimations(), new Vector2(0, 0) );
 
+            sprites.Add( playerSprite );
+        }
 
+        private Dictionary<AnimationName, Animation> GeneratePlayerAnimations()
+        {
+            // Animation texture, frameWidth, frameHeight, and numFrames are assumed to be the same
+            Texture2D playerSpriteSheet = Content.Load<Texture2D>(PLAYER_SPRITESHEET_PATH);
+            int playerFrameWidth = playerSpriteSheet.Width / PLAYER_SPRITESHEET_COLUMNS;
+            int playerFrameHeight = playerSpriteSheet.Height / PLAYER_SPRITESHEET_ROWS;
 
+            // Define player animation positions dict
+            var PlayerAnimationStartPositions = new Dictionary<AnimationName, Vector2>
+            {
+                [AnimationName.UpWalk] = new Vector2(playerFrameWidth * PLAYER_ALLWALK_COLUMN,
+                                                     playerFrameHeight * PLAYER_UPWALK_ROW),
 
-            // TODO: Create sprite object/animation dictionary
-            sprites.Add( new Sprite( Content.Load<Texture2D>("Player/PlayerAll"), new Vector2(0, 0)) );
+                [AnimationName.DownWalk] = new Vector2(playerFrameWidth * PLAYER_ALLWALK_COLUMN,
+                                                       playerFrameHeight * PLAYER_DOWNWALK_ROW),
+
+                [AnimationName.LeftWalk] = new Vector2(playerFrameWidth * PLAYER_ALLWALK_COLUMN,
+                                                       playerFrameHeight * PLAYER_LEFTWALK_ROW),
+
+                [AnimationName.RightWalk] = new Vector2(playerFrameWidth * PLAYER_ALLWALK_COLUMN, 
+                                                        playerFrameHeight * PLAYER_RIGHTWALK_ROW)
+            };
+
+            var playerAnimations = new Dictionary<AnimationName, Animation>();
+            foreach(AnimationName animationName in Enum.GetValues(typeof(AnimationName)))
+            {
+                playerAnimations[animationName] = new Animation(playerSpriteSheet,
+                                                                PlayerAnimationStartPositions[animationName],
+                                                                PLAYER_ANIMATION_FRAMES,
+                                                                playerFrameWidth,
+                                                                playerFrameHeight);
+            }
+
+            return playerAnimations;
         }
 
         /// <summary>
@@ -100,11 +139,11 @@ namespace MonoGame1
         {
             GraphicsDevice.Clear(Color.CornflowerBlue);
 
-            // TODO: Add your drawing code here
             spriteBatch.Begin();
+
             foreach (Sprite sprite in sprites)
             {
-                spriteBatch.Draw(sprite.Texture, sprite.position, sprite.SourceRect, Color.White);
+                spriteBatch.Draw(sprite.CurrentAnimation.Texture, sprite.Position, sprite.CurrentAnimation.SourceRect, Color.White);
             }
 
             spriteBatch.End();

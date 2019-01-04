@@ -1,82 +1,40 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Collections.Generic;
 
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 
+using MonoGame1.Models;
+
 namespace MonoGame1.Sprites
 {
-    public enum Animation
-    {
-        UpWalk = 0,
-        DownWalk = 1,
-        LeftWalk = 2,
-        RightWalk = 3
-    }
-
-    
-
     class Sprite
     {
-        public const int milliSecPerFrame = 80;
+        public Dictionary<AnimationName, Animation> Animations;
 
-        public Texture2D Texture { get; set; }
+        public Vector2 Position;
 
-        public Vector2 position;
+        public Animation CurrentAnimation { get; set; }
 
-        public Rectangle SourceRect { get; set; }
+        public float MoveSpeed { get; set; } = 3f;
 
-        public float MoveSpeed { get; set; }
-
-        public int FrameWidth { get { return Texture.Width / 6; } }
-
-        public int FrameHeight { get { return Texture.Height / 10; } }
-
-        public Vector2 velocity;
-
-        public Vector2 animationPosition;
-
-        public Dictionary<Animation, Vector2> AnimationPositions { get; set; }
-
-        private const int _numFrames = 3;
-
-        private Animation _currentAnimation = Animation.DownWalk;
-
-        private int _frame = 0;
+        public Vector2 Velocity;
 
         private float _elapsedTime = 0f;
 
-        private bool _moving = false;
-
-
-        public Sprite( Texture2D texture, Vector2 pos )
+        public Sprite( Dictionary<AnimationName, Animation> animations, Vector2 pos )
         {
             // Input variables
-            Texture = texture;
-            position = pos;
+            Animations = animations;
+            Position = pos;
 
             // Public defaults
-            SourceRect = new Rectangle(0,
-                                       0,
-                                       FrameWidth,
-                                       FrameHeight);
-
-            MoveSpeed = 3f;
-            velocity = Vector2.Zero;
-            animationPosition = Vector2.Zero;
-
-            // Initialize animation positions dict
-            AnimationPositions = new Dictionary<Animation, Vector2>
-            {
-                [Animation.UpWalk] = new Vector2(FrameWidth * 0, FrameHeight * 1),
-                [Animation.DownWalk] = new Vector2(FrameWidth * 0, FrameHeight * 0),
-                [Animation.LeftWalk] = new Vector2(FrameWidth * 0, FrameHeight * 3),
-                [Animation.RightWalk] = new Vector2(FrameWidth * 0, FrameHeight * 2)
-            };
+            CurrentAnimation = Animations[AnimationName.DownWalk];
+            Velocity = Vector2.Zero;
 
         }
 
@@ -85,108 +43,118 @@ namespace MonoGame1.Sprites
             SetVelocity();
             SetAnimation(gameTime);
 
-            position += velocity;
-            velocity = Vector2.Zero;
+            Position += Velocity;
+            Velocity = Vector2.Zero;
         }
 
-
+        // -- TODO: Handle multiple inputs
         private void SetVelocity()
         {
             if (Keyboard.GetState().IsKeyDown(Keys.Up))
             {
-                velocity.Y = -MoveSpeed;
+                Velocity.Y = -MoveSpeed;
             }
             if (Keyboard.GetState().IsKeyDown(Keys.Down))
             {
-                velocity.Y = MoveSpeed;
+                Velocity.Y = MoveSpeed;
             }
             if (Keyboard.GetState().IsKeyDown(Keys.Left))
             {
-                velocity.X = -MoveSpeed;
+                Velocity.X = -MoveSpeed;
             }
             if (Keyboard.GetState().IsKeyDown(Keys.Right))
             {
-                velocity.X = MoveSpeed;
+                Velocity.X = MoveSpeed;
             }
         }
 
-        // TODO: Create 4 more animations for diagonals
+        // -- TODO: Create 4 more animations for diagonals
+        // -- TODO: Handle multiple inputs
         private void SetAnimation( GameTime gameTime )
         {
+            bool switchingDirections = false;
+            bool moving = false;
+
             _elapsedTime += gameTime.ElapsedGameTime.Milliseconds;
 
             if (Keyboard.GetState().IsKeyDown(Keys.Up))
             {
                 // When switching from another direction
-                if (_currentAnimation != Animation.UpWalk)
+                if ( CurrentAnimation != Animations[AnimationName.UpWalk])
                 {
-                    _frame = 2;
+                    switchingDirections = true;
                 }
 
-                _currentAnimation = Animation.UpWalk;
-                _moving = true;
+                CurrentAnimation = Animations[AnimationName.UpWalk];
+                moving = true;
             }
             else if (Keyboard.GetState().IsKeyDown(Keys.Down))
             {
                 // When switching from another direction
-                if (_currentAnimation != Animation.DownWalk)
+                if (CurrentAnimation != Animations[AnimationName.DownWalk])
                 {
-                    _frame = 2;
+                    switchingDirections = true;
                 }
 
-                _currentAnimation = Animation.DownWalk;
-                _moving = true;
+                CurrentAnimation = Animations[AnimationName.DownWalk];
+                moving = true;
             }
             else if (Keyboard.GetState().IsKeyDown(Keys.Left))
             {
                 // When switching from another direction
-                if (_currentAnimation != Animation.LeftWalk)
+                if (CurrentAnimation != Animations[AnimationName.LeftWalk])
                 {
-                    _frame = 2;
+                    switchingDirections = true;
                 }
 
-                _currentAnimation = Animation.LeftWalk;
-                _moving = true;
+                CurrentAnimation = Animations[AnimationName.LeftWalk];
+                moving = true;
             }
             else if (Keyboard.GetState().IsKeyDown(Keys.Right))
             {
                 // When switching from another direction
-                if (_currentAnimation != Animation.RightWalk)
+                if (CurrentAnimation != Animations[AnimationName.RightWalk])
                 {
-                    _frame = 2;
+                    switchingDirections = true;
                 }
 
-                _currentAnimation = Animation.RightWalk;
-                _moving = true;
+                CurrentAnimation = Animations[AnimationName.RightWalk];
+                moving = true;
             }
+            // -- TODO: Add Idle animation
+            // No input direction - switch back to frame 1 after some delay
             else
             {
-                _moving = false;
-                if (_elapsedTime >= milliSecPerFrame * _frame)
+                moving = false;
+                if (_elapsedTime >= CurrentAnimation.MilliSecPerFrame * CurrentAnimation.CurrentFrame)
                 {
-                    _frame = 1;
+                    CurrentAnimation.CurrentFrame = 1;
                     _elapsedTime = 0;
                 }
             }
 
-            // Set animation starting positions
-            animationPosition = AnimationPositions[_currentAnimation];
+            // Start animation on frame 2 if switching directions
+            if (switchingDirections)
+            {
+                CurrentAnimation.CurrentFrame = 2;
+            }
 
             // Set source rect based on current frame
-            SourceRect = new Rectangle( (int)animationPosition.X + FrameWidth * (_frame - 1),
-                                        (int)animationPosition.Y,
-                                        FrameWidth,
-                                        FrameHeight );
+            CurrentAnimation.SourceRect = new Rectangle((int)CurrentAnimation.StartPosition.X + CurrentAnimation.FrameWidth * (CurrentAnimation.CurrentFrame - 1),
+                                        (int)CurrentAnimation.StartPosition.Y,
+                                        CurrentAnimation.FrameWidth,
+                                        CurrentAnimation.FrameHeight);
 
-            if (_moving)
+            // Only update frame if moving
+            if (moving)
             {
-                if (_frame < _numFrames && _elapsedTime >= milliSecPerFrame * _frame)
+                if (CurrentAnimation.CurrentFrame < CurrentAnimation.NumFrames && _elapsedTime >= CurrentAnimation.MilliSecPerFrame * CurrentAnimation.CurrentFrame)
                 {
-                    _frame += 1;
+                    CurrentAnimation.CurrentFrame += 1;
                 }
-                else if (_frame == _numFrames && _elapsedTime >= milliSecPerFrame * _frame)
+                else if (CurrentAnimation.CurrentFrame == CurrentAnimation.NumFrames && _elapsedTime >= CurrentAnimation.MilliSecPerFrame * CurrentAnimation.CurrentFrame)
                 {
-                    _frame = 1;
+                    CurrentAnimation.CurrentFrame = 1;
                     _elapsedTime = 0;
                 }
             }
