@@ -46,8 +46,11 @@
   <ItemGroup>
     <Compile Include="Game1.cs" />
     <Compile Include="Models\Animation.cs" />
+    <Compile Include="Models\Input.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Sprites\GoblinSpriteInfo.cs" />
+    <Compile Include="Sprites\PlayerSpriteInfo.cs" />
     <Compile Include="Sprites\Sprite.cs" />
   </ItemGroup>
   <ItemGroup>

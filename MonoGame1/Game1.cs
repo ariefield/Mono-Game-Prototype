@@ -14,17 +14,10 @@ namespace MonoGame1
     /// </summary>
     public class Game1 : Game
     {
-        // Player spritesheet specific variables
-        const string PLAYER_SPRITESHEET_PATH = "Player/PlayerAll";
-        const int PLAYER_ANIMATION_FRAMES = 3;
-        const int PLAYER_SPRITESHEET_COLUMNS = 6;
-        const int PLAYER_SPRITESHEET_ROWS = 10;
-        const int PLAYER_UPWALK_ROW = 1;
-        const int PLAYER_DOWNWALK_ROW = 0;
-        const int PLAYER_LEFTWALK_ROW = 3;
-        const int PLAYER_RIGHTWALK_ROW = 2;
-        const int PLAYER_ALLWALK_COLUMN = 0;
-        
+        //Starting positions
+        Vector2 PLAYER_STARTING_POSITION = new Vector2(0, 0);
+        Vector2 GOBLIN_STARTING_POSITION = new Vector2(600, 200);
+
         // Monogame variables
         GraphicsDeviceManager graphics;
         SpriteBatch spriteBatch;
@@ -60,45 +53,16 @@ namespace MonoGame1
             // Create a new SpriteBatch, which can be used to draw textures.
             spriteBatch = new SpriteBatch(GraphicsDevice);
 
-            var playerSprite = new Sprite( GeneratePlayerAnimations(), new Vector2(0, 0) );
-
+            // Player
+            PlayerSpriteInfo.Texture = Content.Load<Texture2D>(PlayerSpriteInfo.SPRITESHEET_PATH);
+            var playerInput = new Input(Keys.Up, Keys.Down, Keys.Left, Keys.Right);
+            var playerSprite = new Sprite( PlayerSpriteInfo.GenerateAnimations(), PLAYER_STARTING_POSITION, playerInput, true);
             sprites.Add( playerSprite );
-        }
 
-        private Dictionary<AnimationName, Animation> GeneratePlayerAnimations()
-        {
-            // Animation texture, frameWidth, frameHeight, and numFrames are assumed to be the same
-            Texture2D playerSpriteSheet = Content.Load<Texture2D>(PLAYER_SPRITESHEET_PATH);
-            int playerFrameWidth = playerSpriteSheet.Width / PLAYER_SPRITESHEET_COLUMNS;
-            int playerFrameHeight = playerSpriteSheet.Height / PLAYER_SPRITESHEET_ROWS;
-
-            // Define player animation positions dict
-            var PlayerAnimationStartPositions = new Dictionary<AnimationName, Vector2>
-            {
-                [AnimationName.UpWalk] = new Vector2(playerFrameWidth * PLAYER_ALLWALK_COLUMN,
-                                                     playerFrameHeight * PLAYER_UPWALK_ROW),
-
-                [AnimationName.DownWalk] = new Vector2(playerFrameWidth * PLAYER_ALLWALK_COLUMN,
-                                                       playerFrameHeight * PLAYER_DOWNWALK_ROW),
-
-                [AnimationName.LeftWalk] = new Vector2(playerFrameWidth * PLAYER_ALLWALK_COLUMN,
-                                                       playerFrameHeight * PLAYER_LEFTWALK_ROW),
-
-                [AnimationName.RightWalk] = new Vector2(playerFrameWidth * PLAYER_ALLWALK_COLUMN, 
-                                                        playerFrameHeight * PLAYER_RIGHTWALK_ROW)
-            };
-
-            var playerAnimations = new Dictionary<AnimationName, Animation>();
-            foreach(AnimationName animationName in Enum.GetValues(typeof(AnimationName)))
-            {
-                playerAnimations[animationName] = new Animation(playerSpriteSheet,
-                                                                PlayerAnimationStartPositions[animationName],
-                                                                PLAYER_ANIMATION_FRAMES,
-                                                                playerFrameWidth,
-                                                                playerFrameHeight);
-            }
-
-            return playerAnimations;
+            //Goblin
+            GoblinSpriteInfo.Texture = Content.Load<Texture2D>(GoblinSpriteInfo.SPRITESHEET_PATH);
+            var goblinSprite = new Sprite( GoblinSpriteInfo.GenerateAnimations(), GOBLIN_STARTING_POSITION, null, false );
+            sprites.Add( goblinSprite );
         }
 
         /// <summary>

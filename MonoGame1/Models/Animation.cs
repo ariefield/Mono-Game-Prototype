@@ -13,10 +13,11 @@ namespace MonoGame1.Models
         UpWalk = 0,
         DownWalk = 1,
         LeftWalk = 2,
-        RightWalk = 3
+        RightWalk = 3,
+        Idle = 4
     }
 
-    class Animation
+    public class Animation
     {
         public Texture2D Texture { get; }
 
@@ -38,16 +39,18 @@ namespace MonoGame1.Models
         public Dictionary<AnimationName, Vector2> AnimationStartPositions { get; set; }
 
 
-        public Animation( Texture2D texture, Vector2 startPosition, int numFrames, int frameWidth, int frameHeight )
+        public Animation( Texture2D texture, Vector2 startPosition, int numFrames, int frameWidth, int frameHeight, int milliSecPerFrame = 80 )
         {
+            //Input Variables
             Texture = texture;
             StartPosition = startPosition;
             NumFrames = numFrames;
-
-            CurrentFrame = 1;
             FrameWidth = frameWidth;
             FrameHeight = frameHeight;
+            MilliSecPerFrame = milliSecPerFrame;
 
+            //Default Variables
+            CurrentFrame = 1;
             SourceRect = new Rectangle(0,
                                        0,
                                        FrameWidth,
