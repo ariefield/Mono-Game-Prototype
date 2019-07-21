@@ -8,3 +8,6 @@
 - Collision detection
 - Grid combat
 - Attack animation
+
+## Brainstorming
+- Fire emblem type combat with reaction required (higher odds makes reactions easier)
